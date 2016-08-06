@@ -27,6 +27,8 @@ namespace DStarLiteSharp
 
         private C5.IPriorityQueue<State> openList = new C5.IntervalHeap<State>();
 
+        private readonly bool allowDiagonalPathing;
+
         // Change back to private****
         public Dictionary<State, CellInfo> cellHash = new Dictionary<State, CellInfo>();
 
@@ -36,9 +38,10 @@ namespace DStarLiteSharp
         private double M_SQRT2 = Math.Sqrt(2);
 
         // Default constructor
-        public DStarLite()
+        public DStarLite(int maxSteps = 80000, bool allowDiagonalPathing = true)
         {
-            this.maxSteps = 80000;
+            this.maxSteps = maxSteps;
+            this.allowDiagonalPathing = allowDiagonalPathing;
             this.C1 = 1;
         }
 
@@ -114,7 +117,7 @@ namespace DStarLiteSharp
 
         private double heuristic(State a, State b)
         {
-            return (this.eightCondist(a, b)*this.C1);
+            return (this.eightCondist(a, b) * this.C1);
         }
 
         private double eightCondist(State a, State b)
@@ -130,7 +133,7 @@ namespace DStarLiteSharp
             }
 
             return (((this.M_SQRT2 - 1)
-                     *min)
+                     * min)
                     + max);
         }
 
@@ -272,6 +275,8 @@ namespace DStarLiteSharp
                 }
             }
 
+            Console.WriteLine($"Path found in {k} steps");
+
             // while
             return 0;
         }
@@ -289,20 +294,32 @@ namespace DStarLiteSharp
             // Moving in a clockwise manner
             tempState = new State((u.x + 1), u.y, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
-            tempState = new State((u.x + 1), (u.y + 1), new Pair<double, double>(-1, -1));
-            s.AddFirst(tempState);
+            if (allowDiagonalPathing)
+            {
+                //tempState = new State((u.x + 1), (u.y + 1), new Pair<double, double>(-1, -1));
+                //s.AddFirst(tempState);
+            }
             tempState = new State(u.x, (u.y + 1), new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
-            tempState = new State((u.x - 1), (u.y + 1), new Pair<double, double>(-1, -1));
-            s.AddFirst(tempState);
+            if (allowDiagonalPathing)
+            {
+                //tempState = new State((u.x - 1), (u.y + 1), new Pair<double, double>(-1, -1));
+                //s.AddFirst(tempState);
+            }
             tempState = new State((u.x - 1), u.y, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
-            tempState = new State((u.x - 1), (u.y - 1), new Pair<double, double>(-1, -1));
-            s.AddFirst(tempState);
+            if (allowDiagonalPathing)
+            {
+                //tempState = new State((u.x - 1), (u.y - 1), new Pair<double, double>(-1, -1));
+                //s.AddFirst(tempState);
+            }
             tempState = new State(u.x, (u.y - 1), new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
-            tempState = new State((u.x + 1), (u.y - 1), new Pair<double, double>(-1, -1));
-            s.AddFirst(tempState);
+            if (allowDiagonalPathing)
+            {
+                //tempState = new State((u.x + 1), (u.y - 1), new Pair<double, double>(-1, -1));
+                //s.AddFirst(tempState);
+            }
             return s;
         }
 
@@ -316,10 +333,13 @@ namespace DStarLiteSharp
                 s.AddFirst(tempState);
             }
 
-            tempState = new State((u.x + 1), (u.y + 1), new Pair<double, double>(-1, -1));
-            if (!this.occupied(tempState))
+            if (allowDiagonalPathing)
             {
-                s.AddFirst(tempState);
+                tempState = new State((u.x + 1), (u.y + 1), new Pair<double, double>(-1, -1));
+                if (!this.occupied(tempState))
+                {
+                    s.AddFirst(tempState);
+                }
             }
 
             tempState = new State(u.x, (u.y + 1), new Pair<double, double>(-1, -1));
@@ -328,10 +348,13 @@ namespace DStarLiteSharp
                 s.AddFirst(tempState);
             }
 
-            tempState = new State((u.x - 1), (u.y + 1), new Pair<double, double>(-1, -1));
-            if (!this.occupied(tempState))
+            if (allowDiagonalPathing)
             {
-                s.AddFirst(tempState);
+                tempState = new State((u.x - 1), (u.y + 1), new Pair<double, double>(-1, -1));
+                if (!this.occupied(tempState))
+                {
+                    s.AddFirst(tempState);
+                }
             }
 
             tempState = new State((u.x - 1), u.y, new Pair<double, double>(-1, -1));
@@ -340,10 +363,13 @@ namespace DStarLiteSharp
                 s.AddFirst(tempState);
             }
 
-            tempState = new State((u.x - 1), (u.y - 1), new Pair<double, double>(-1, -1));
-            if (!this.occupied(tempState))
+            if (allowDiagonalPathing)
             {
-                s.AddFirst(tempState);
+                tempState = new State((u.x - 1), (u.y - 1), new Pair<double, double>(-1, -1));
+                if (!this.occupied(tempState))
+                {
+                    s.AddFirst(tempState);
+                }
             }
 
             tempState = new State(u.x, (u.y - 1), new Pair<double, double>(-1, -1));
@@ -352,10 +378,13 @@ namespace DStarLiteSharp
                 s.AddFirst(tempState);
             }
 
-            tempState = new State((u.x + 1), (u.y - 1), new Pair<double, double>(-1, -1));
-            if (!this.occupied(tempState))
+            if (allowDiagonalPathing)
             {
-                s.AddFirst(tempState);
+                tempState = new State((u.x + 1), (u.y - 1), new Pair<double, double>(-1, -1));
+                if (!this.occupied(tempState))
+                {
+                    s.AddFirst(tempState);
+                }
             }
 
             return s;
@@ -519,7 +548,7 @@ namespace DStarLiteSharp
 
         private float keyHashCode(State u)
         {
-            return ((float) ((u.k.first() + (1193*u.k.second()))));
+            return ((float)((u.k.first() + (1193 * u.k.second()))));
         }
 
         private bool occupied(State u)
@@ -537,8 +566,8 @@ namespace DStarLiteSharp
         {
             float x = (a.x - b.x);
             float y = (a.y - b.y);
-            return Math.Sqrt(((x*x)
-                              + (y*y)));
+            return Math.Sqrt(((x * x)
+                              + (y * y)));
         }
 
         private double cost(State a, State b)
@@ -553,10 +582,10 @@ namespace DStarLiteSharp
 
             if ((this.cellHash.ContainsKey(a) == false))
             {
-                return (scale*this.C1);
+                return (scale * this.C1);
             }
 
-            return (scale*this.cellHash[a].cost);
+            return (scale * this.cellHash[a].cost);
         }
 
         private bool close(double x, double y)

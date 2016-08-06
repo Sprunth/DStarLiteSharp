@@ -29,7 +29,7 @@ namespace DStarLiteSharpSample
             int startX = 1, startY = 1;
             int endX = 8, endY = 5;
 
-            var pathfinder = new DStarLite();
+            var pathfinder = new DStarLite(1000, false);
             pathfinder.init(startX, startY, endX, endY);
             for (var row = 0; row < mazeHeight; row++)
             {
