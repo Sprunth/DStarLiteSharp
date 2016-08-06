@@ -4,9 +4,9 @@ namespace DStarLiteSharp
 {
     public class State : ICloneable, IComparable
     {
-        public Pair<double, double> k = new Pair<double, double>(0.0, 0.0);
-        public int x;
-        public int y;
+        public readonly Pair<double, double> k = new Pair<double, double>(0.0, 0.0);
+        public int X;
+        public int Y;
 
         public State()
         {
@@ -14,72 +14,72 @@ namespace DStarLiteSharp
 
         public State(int x, int y, Pair<double, double> k)
         {
-            this.x = x;
-            this.y = y;
+            X = x;
+            Y = y;
             this.k = k;
         }
 
         public State(State other)
         {
-            x = other.x;
-            y = other.y;
+            X = other.X;
+            Y = other.Y;
             k = other.k;
         }
 
         public object Clone()
         {
-            return new State(x, y, new Pair<double, double>(k.first(), k.second()));
+            return new State(X, Y, new Pair<double, double>(k.First(), k.Second()));
         }
 
         public int CompareTo(object obj)
         {
             var other = (State)obj;
-            if (k.first() - 0.00001 > other.k.first()) return 1;
-            if (k.first() < other.k.first() - 0.00001) return -1;
-            if (k.second() > other.k.second()) return 1;
-            if (k.second() < other.k.second()) return -1;
+            if (k.First() - 0.00001 > other.k.First()) return 1;
+            if (k.First() < other.k.First() - 0.00001) return -1;
+            if (k.Second() > other.k.Second()) return 1;
+            if (k.Second() < other.k.Second()) return -1;
             return 0;
         }
 
         //Equals
-        public bool eq(State s2)
+        public bool Eq(State s2)
         {
-            return (x == s2.x) && (y == s2.y);
+            return (X == s2.X) && (Y == s2.Y);
         }
 
         //Not Equals
-        public bool neq(State s2)
+        public bool Neq(State s2)
         {
-            return (x != s2.x) || (y != s2.y);
+            return (X != s2.X) || (Y != s2.Y);
         }
 
         //Greater than
-        public bool gt(State s2)
+        public bool Gt(State s2)
         {
-            if (k.first() - 0.00001 > s2.k.first()) return true;
-            if (k.first() < s2.k.first() - 0.00001) return false;
-            return k.second() > s2.k.second();
+            if (k.First() - 0.00001 > s2.k.First()) return true;
+            if (k.First() < s2.k.First() - 0.00001) return false;
+            return k.Second() > s2.k.Second();
         }
 
         //Less than or equal to
-        public bool lte(State s2)
+        public bool Lte(State s2)
         {
-            if (k.first() < s2.k.first()) return true;
-            if (k.first() > s2.k.first()) return false;
-            return k.second() < s2.k.second() + 0.00001;
+            if (k.First() < s2.k.First()) return true;
+            if (k.First() > s2.k.First()) return false;
+            return k.Second() < s2.k.Second() + 0.00001;
         }
 
         //Less than
-        public bool lt(State s2)
+        public bool Lt(State s2)
         {
-            if (k.first() + 0.000001 < s2.k.first()) return true;
-            if (k.first() - 0.000001 > s2.k.first()) return false;
-            return k.second() < s2.k.second();
+            if (k.First() + 0.000001 < s2.k.First()) return true;
+            if (k.First() - 0.000001 > s2.k.First()) return false;
+            return k.Second() < s2.k.Second();
         }
 
         public override int GetHashCode()
         {
-            return x + 34245 * y;
+            return X + 34245 * Y;
         }
 
         public override bool Equals(object obj)
@@ -100,7 +100,7 @@ namespace DStarLiteSharp
             var that = (State)obj;
 
             //now a proper field-by-field evaluation can be made
-            if (x == that.x && y == that.y) return true;
+            if (X == that.X && Y == that.Y) return true;
             return false;
         }
     }

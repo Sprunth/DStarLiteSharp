@@ -29,7 +29,7 @@ namespace DStarLiteSharpSample
             int startX = 1, startY = 1;
             int endX = 8, endY = 5;
 
-            var pathfinder = new DStarLite(1000, false);
+            var pathfinder = new DStarLite(1000, true);
             pathfinder.init(startX, startY, endX, endY);
             for (var row = 0; row < mazeHeight; row++)
             {
@@ -37,7 +37,7 @@ namespace DStarLiteSharpSample
                 {
                     var mazeVal = maze[row, col];
                     if (mazeVal == 1)
-                        pathfinder.updateCell(col, row, -1);
+                        pathfinder.UpdateCell(col, row, -1);
                 }
             }
             Console.WriteLine($"Start node: ({startX}, {startY})");
@@ -45,14 +45,14 @@ namespace DStarLiteSharpSample
             // Time the replanning
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            pathfinder.replan();
+            pathfinder.Replan();
             stopwatch.Stop();
             var replanTime = stopwatch.ElapsedMilliseconds;
             Console.WriteLine($"Time: {replanTime} ms");
-            var path = pathfinder.getPath();
+            var path = pathfinder.GetPath();
             foreach (var i in path)
             {
-                Console.WriteLine($"x: {i.x} y: {i.y}");
+                Console.WriteLine($"x: {i.X} y: {i.Y}");
             }
 
             Console.WriteLine("S=Start E=End *=Path");
@@ -73,7 +73,7 @@ namespace DStarLiteSharpSample
                     bool written = false;
                     path.ForEach(state =>
                     {
-                        if (col == state.x && row == state.y)
+                        if (col == state.X && row == state.Y)
                         {
                             Console.Write('*');
                             written = true;

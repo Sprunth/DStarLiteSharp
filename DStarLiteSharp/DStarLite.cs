@@ -24,7 +24,7 @@ namespace DStarLiteSharp
         private readonly State s_goal = new State();
 
         // Change back to private****
-        public Dictionary<State, CellInfo> cellHash = new Dictionary<State, CellInfo>();
+        public readonly Dictionary<State, CellInfo> cellHash = new Dictionary<State, CellInfo>();
 
         private double k_m;
 
@@ -56,36 +56,40 @@ namespace DStarLiteSharp
             }
 
             k_m = 0;
-            s_start.x = sX;
-            s_start.y = sY;
-            s_goal.x = gX;
-            s_goal.y = gY;
-            var tmp = new CellInfo();
-            tmp.g = 0;
-            tmp.rhs = 0;
-            tmp.cost = C1;
+            s_start.X = sX;
+            s_start.Y = sY;
+            s_goal.X = gX;
+            s_goal.Y = gY;
+            var tmp = new CellInfo
+            {
+                G = 0,
+                Rhs = 0,
+                Cost = C1
+            };
             cellHash.Add(s_goal, tmp);
-            tmp = new CellInfo();
-            tmp.rhs = heuristic(s_start, s_goal);
-            tmp.g = heuristic(s_start, s_goal);
-            tmp.cost = C1;
+            tmp = new CellInfo
+            {
+                Rhs = Heuristic(s_start, s_goal),
+                G = Heuristic(s_start, s_goal),
+                Cost = C1
+            };
             cellHash.Add(s_start, tmp);
-            s_start = calculateKey(s_start);
+            s_start = CalculateKey(s_start);
             s_last = s_start;
         }
 
-        private State calculateKey(State u)
+        private State CalculateKey(State u)
         {
-            var val = Math.Min(getRHS(u), getG(u));
-            u.k.setFirst(val
-                         + (heuristic(u, s_start) + k_m));
-            u.k.setSecond(val);
+            var val = Math.Min(GetRhs(u), GetG(u));
+            u.k.SetFirst(val
+                         + (Heuristic(u, s_start) + k_m));
+            u.k.SetSecond(val);
             return u;
         }
 
-        private double getRHS(State u)
+        private double GetRhs(State u)
         {
-            if (u == s_goal)
+            if (u.Equals(s_goal))
             {
                 return 0;
             }
@@ -93,36 +97,35 @@ namespace DStarLiteSharp
             // if the cellHash doesn't contain the State u
             if (!cellHash.ContainsKey(u))
             {
-                return heuristic(u, s_goal);
+                return Heuristic(u, s_goal);
             }
 
-            return cellHash[u].rhs;
+            return cellHash[u].Rhs;
         }
 
-        private double getG(State u)
+        private double GetG(State u)
         {
             // if the cellHash doesn't contain the State u
             if (!cellHash.ContainsKey(u))
             {
-                return heuristic(u, s_goal);
+                return Heuristic(u, s_goal);
             }
 
-            return cellHash[u].g;
+            return cellHash[u].G;
         }
 
-        private double heuristic(State a, State b)
+        private double Heuristic(State a, State b)
         {
-            return eightCondist(a, b) * C1;
+            return EightCondist(a, b) * C1;
         }
 
-        private double eightCondist(State a, State b)
+        private double EightCondist(State a, State b)
         {
-            double temp;
-            double min = Math.Abs(a.x - b.x);
-            double max = Math.Abs(a.y - b.y);
+            double min = Math.Abs(a.X - b.X);
+            double max = Math.Abs(a.Y - b.Y);
             if (min > max)
             {
-                temp = min;
+                var temp = min;
                 min = max;
                 max = temp;
             }
@@ -132,29 +135,28 @@ namespace DStarLiteSharp
                    + max;
         }
 
-        public bool replan()
+        public bool Replan()
         {
             path.Clear();
-            var res = computeShortestPath();
+            var res = ComputeShortestPath();
             if (res < 0)
             {
                 Console.WriteLine("No Path to Goal");
                 return false;
             }
 
-            var n = new System.Collections.Generic.LinkedList<State>();
             var cur = s_start;
-            if (getG(s_start) == double.MaxValue)
+            if (GetG(s_start) == double.MaxValue)
             {
                 Console.WriteLine("No Path to Goal");
                 return false;
             }
 
-            while (cur.neq(s_goal))
+            while (cur.Neq(s_goal))
             {
                 path.Add(cur);
-                n = new System.Collections.Generic.LinkedList<State>();
-                n = getSucc(cur);
+                var n = new System.Collections.Generic.LinkedList<State>();
+                n = GetSucc(cur);
                 if (n.Count == 0)
                 {
                     Console.WriteLine("No Path to Goal");
@@ -166,10 +168,10 @@ namespace DStarLiteSharp
                 var smin = new State();
                 foreach (var i in n)
                 {
-                    var val = cost(cur, i);
-                    var val2 = trueDist(i, s_goal) + trueDist(s_start, i);
-                    val = val + getG(i);
-                    if (close(val, cmin))
+                    var val = Cost(cur, i);
+                    var val2 = TrueDist(i, s_goal) + TrueDist(s_start, i);
+                    val = val + GetG(i);
+                    if (Close(val, cmin))
                     {
                         if (tmin > val2)
                         {
@@ -195,9 +197,8 @@ namespace DStarLiteSharp
             return true;
         }
 
-        private int computeShortestPath()
+        private int ComputeShortestPath()
         {
-            var s = new System.Collections.Generic.LinkedList<State>();
             if (openList.IsEmpty)
             {
                 return 1;
@@ -206,8 +207,8 @@ namespace DStarLiteSharp
             var k = 0;
             // todo: check conversion of this while condition
             while (!openList.IsEmpty
-                   && openList.FindMin().lt(s_start = calculateKey(s_start))
-                   || (getRHS(s_start) != getG(s_start)))
+                   && openList.FindMin().Lt(s_start = CalculateKey(s_start))
+                   || (GetRhs(s_start) != GetG(s_start)))
             {
                 if (k++ > maxSteps)
                 {
@@ -215,7 +216,7 @@ namespace DStarLiteSharp
                     return -1;
                 }
                 State u;
-                var test = getRHS(s_start) != getG(s_start);
+                var test = GetRhs(s_start) != GetG(s_start);
                 // lazy remove
                 while (true)
                 {
@@ -225,12 +226,12 @@ namespace DStarLiteSharp
                     }
 
                     u = openList.DeleteMin();
-                    if (!isValid(u))
+                    if (!IsValid(u))
                     {
                         // TODO: Warning!!! continue If
                     }
 
-                    if (!u.lt(s_start)
+                    if (!u.Lt(s_start)
                         && !test)
                     {
                         return 2;
@@ -241,32 +242,36 @@ namespace DStarLiteSharp
 
                 openHash.Remove(u);
                 var k_old = new State(u);
-                if (k_old.lt(calculateKey(u)))
+                if (k_old.Lt(CalculateKey(u)))
                 {
                     // u is out of date
-                    insert(u);
-                }
-                else if (getG(u) > getRHS(u))
-                {
-                    // needs update (got better)
-                    setG(u, getRHS(u));
-                    s = getPred(u);
-                    foreach (var i in s)
-                    {
-                        updateVertex(i);
-                    }
+                    Insert(u);
                 }
                 else
                 {
-                    //  g <= rhs, state has got worse
-                    setG(u, double.MaxValue);
-                    s = getPred(u);
-                    foreach (var i in s)
+                    System.Collections.Generic.LinkedList<State> s;
+                    if (GetG(u) > GetRhs(u))
                     {
-                        updateVertex(i);
+                        // needs update (got better)
+                        SetG(u, GetRhs(u));
+                        s = GetPred(u);
+                        foreach (var i in s)
+                        {
+                            UpdateVertex(i);
+                        }
                     }
+                    else
+                    {
+                        //  g <= rhs, state has got worse
+                        SetG(u, double.MaxValue);
+                        s = GetPred(u);
+                        foreach (var i in s)
+                        {
+                            UpdateVertex(i);
+                        }
 
-                    updateVertex(u);
+                        UpdateVertex(u);
+                    }
                 }
             }
 
@@ -276,107 +281,107 @@ namespace DStarLiteSharp
             return 0;
         }
 
-        private System.Collections.Generic.LinkedList<State> getSucc(State u)
+        private System.Collections.Generic.LinkedList<State> GetSucc(State u)
         {
             var s = new System.Collections.Generic.LinkedList<State>();
             State tempState;
-            if (occupied(u))
+            if (Occupied(u))
             {
                 return s;
             }
 
             // Generate the successors, starting at the immediate right,
             // Moving in a clockwise manner
-            tempState = new State(u.x + 1, u.y, new Pair<double, double>(-1, -1));
+            tempState = new State(u.X + 1, u.Y, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                //tempState = new State((u.x + 1), (u.y + 1), new Pair<double, double>(-1, -1));
-                //s.AddFirst(tempState);
+                tempState = new State((u.X + 1), (u.Y + 1), new Pair<double, double>(-1, -1));
+                s.AddFirst(tempState);
             }
-            tempState = new State(u.x, u.y + 1, new Pair<double, double>(-1, -1));
+            tempState = new State(u.X, u.Y + 1, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                //tempState = new State((u.x - 1), (u.y + 1), new Pair<double, double>(-1, -1));
-                //s.AddFirst(tempState);
+                tempState = new State((u.X - 1), (u.Y + 1), new Pair<double, double>(-1, -1));
+                s.AddFirst(tempState);
             }
-            tempState = new State(u.x - 1, u.y, new Pair<double, double>(-1, -1));
+            tempState = new State(u.X - 1, u.Y, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                //tempState = new State((u.x - 1), (u.y - 1), new Pair<double, double>(-1, -1));
-                //s.AddFirst(tempState);
+                tempState = new State((u.X - 1), (u.Y - 1), new Pair<double, double>(-1, -1));
+                s.AddFirst(tempState);
             }
-            tempState = new State(u.x, u.y - 1, new Pair<double, double>(-1, -1));
+            tempState = new State(u.X, u.Y - 1, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                //tempState = new State((u.x + 1), (u.y - 1), new Pair<double, double>(-1, -1));
-                //s.AddFirst(tempState);
+                tempState = new State((u.X + 1), (u.Y - 1), new Pair<double, double>(-1, -1));
+                s.AddFirst(tempState);
             }
             return s;
         }
 
-        private System.Collections.Generic.LinkedList<State> getPred(State u)
+        private System.Collections.Generic.LinkedList<State> GetPred(State u)
         {
             var s = new System.Collections.Generic.LinkedList<State>();
             State tempState;
-            tempState = new State(u.x + 1, u.y, new Pair<double, double>(-1, -1));
-            if (!occupied(tempState))
+            tempState = new State(u.X + 1, u.Y, new Pair<double, double>(-1, -1));
+            if (!Occupied(tempState))
             {
                 s.AddFirst(tempState);
             }
 
             if (allowDiagonalPathing)
             {
-                tempState = new State(u.x + 1, u.y + 1, new Pair<double, double>(-1, -1));
-                if (!occupied(tempState))
+                tempState = new State(u.X + 1, u.Y + 1, new Pair<double, double>(-1, -1));
+                if (!Occupied(tempState))
                 {
                     s.AddFirst(tempState);
                 }
             }
 
-            tempState = new State(u.x, u.y + 1, new Pair<double, double>(-1, -1));
-            if (!occupied(tempState))
+            tempState = new State(u.X, u.Y + 1, new Pair<double, double>(-1, -1));
+            if (!Occupied(tempState))
             {
                 s.AddFirst(tempState);
             }
 
             if (allowDiagonalPathing)
             {
-                tempState = new State(u.x - 1, u.y + 1, new Pair<double, double>(-1, -1));
-                if (!occupied(tempState))
+                tempState = new State(u.X - 1, u.Y + 1, new Pair<double, double>(-1, -1));
+                if (!Occupied(tempState))
                 {
                     s.AddFirst(tempState);
                 }
             }
 
-            tempState = new State(u.x - 1, u.y, new Pair<double, double>(-1, -1));
-            if (!occupied(tempState))
+            tempState = new State(u.X - 1, u.Y, new Pair<double, double>(-1, -1));
+            if (!Occupied(tempState))
             {
                 s.AddFirst(tempState);
             }
 
             if (allowDiagonalPathing)
             {
-                tempState = new State(u.x - 1, u.y - 1, new Pair<double, double>(-1, -1));
-                if (!occupied(tempState))
+                tempState = new State(u.X - 1, u.Y - 1, new Pair<double, double>(-1, -1));
+                if (!Occupied(tempState))
                 {
                     s.AddFirst(tempState);
                 }
             }
 
-            tempState = new State(u.x, u.y - 1, new Pair<double, double>(-1, -1));
-            if (!occupied(tempState))
+            tempState = new State(u.X, u.Y - 1, new Pair<double, double>(-1, -1));
+            if (!Occupied(tempState))
             {
                 s.AddFirst(tempState);
             }
 
             if (allowDiagonalPathing)
             {
-                tempState = new State(u.x + 1, u.y - 1, new Pair<double, double>(-1, -1));
-                if (!occupied(tempState))
+                tempState = new State(u.X + 1, u.Y - 1, new Pair<double, double>(-1, -1));
+                if (!Occupied(tempState))
                 {
                     s.AddFirst(tempState);
                 }
@@ -385,26 +390,25 @@ namespace DStarLiteSharp
             return s;
         }
 
-        public void updateStart(int x, int y)
+        public void UpdateStart(int x, int y)
         {
-            s_start.x = x;
-            s_start.y = y;
-            k_m = k_m + heuristic(s_last, s_start);
-            s_start = calculateKey(s_start);
+            s_start.X = x;
+            s_start.Y = y;
+            k_m = k_m + Heuristic(s_last, s_start);
+            s_start = CalculateKey(s_start);
             s_last = s_start;
         }
 
-        public void updateGoal(int x, int y)
+        public void UpdateGoal(int x, int y)
         {
-            var toAdd = new List<Pair<ipoint2, double>>();
-            Pair<ipoint2, double> tempPoint;
+            var toAdd = new List<Pair<Ipoint2, double>>();
 
             foreach (var entry in cellHash)
             {
-                if (!close(entry.Value.cost, C1))
+                if (!Close(entry.Value.Cost, C1))
                 {
-                    tempPoint = new Pair<ipoint2, double>(new ipoint2(entry.Key.x, entry.Key.y),
-                        entry.Value.cost);
+                    var tempPoint = new Pair<Ipoint2, double>(new Ipoint2(entry.Key.X, entry.Key.Y),
+                        entry.Value.Cost);
                     toAdd.Add(tempPoint);
                 }
             }
@@ -417,63 +421,65 @@ namespace DStarLiteSharp
             }
 
             k_m = 0;
-            s_goal.x = x;
-            s_goal.y = y;
-            var tmp = new CellInfo();
-            tmp.rhs = 0;
-            tmp.g = 0;
-            tmp.cost = C1;
+            s_goal.X = x;
+            s_goal.Y = y;
+            var tmp = new CellInfo
+            {
+                Rhs = 0,
+                G = 0,
+                Cost = C1
+            };
             cellHash.Add(s_goal, tmp);
-            tmp = new CellInfo();
-            tmp.rhs = heuristic(s_start, s_goal);
-            tmp.g = heuristic(s_start, s_goal);
-            tmp.cost = C1;
+            tmp = new CellInfo
+            {
+                Rhs = Heuristic(s_start, s_goal),
+                G = Heuristic(s_start, s_goal),
+                Cost = C1
+            };
             cellHash.Add(s_start, tmp);
-            s_start = calculateKey(s_start);
+            s_start = CalculateKey(s_start);
             s_last = s_start;
             foreach (var pair in toAdd)
             {
-                updateCell(pair.first().x, pair.first().y, pair.second());
+                UpdateCell(pair.First().x, pair.First().y, pair.Second());
             }
         }
 
-        private void updateVertex(State u)
+        private void UpdateVertex(State u)
         {
-            var s = new System.Collections.Generic.LinkedList<State>();
-            if (u.neq(s_goal))
+            if (u.Neq(s_goal))
             {
-                s = getSucc(u);
+                var s = GetSucc(u);
                 var tmp = double.MaxValue;
-                double tmp2;
                 foreach (var i in s)
                 {
-                    tmp2 = getG(i) + cost(u, i);
+                    var tmp2 = GetG(i) + Cost(u, i);
                     if (tmp2 < tmp)
                     {
                         tmp = tmp2;
                     }
                 }
 
-                if (!close(getRHS(u), tmp))
+                if (!Close(GetRhs(u), tmp))
                 {
-                    setRHS(u, tmp);
+                    SetRhs(u, tmp);
                 }
             }
 
-            if (!close(getG(u), getRHS(u)))
+            if (!Close(GetG(u), GetRhs(u)))
             {
-                insert(u);
+                Insert(u);
             }
         }
 
-        private bool isValid(State u)
+        private bool IsValid(State u)
         {
             if (!openHash.ContainsKey(u))
             {
                 return false;
             }
 
-            if (!close(keyHashCode(u), openHash[u]))
+            if (!Close(KeyHashCode(u), openHash[u]))
             {
                 return false;
             }
@@ -481,54 +487,57 @@ namespace DStarLiteSharp
             return true;
         }
 
-        private void setG(State u, double g)
+        private void SetG(State u, double g)
         {
-            makeNewCell(u);
-            cellHash[u].g = g;
+            MakeNewCell(u);
+            cellHash[u].G = g;
         }
 
-        private void setRHS(State u, double rhs)
+        private void SetRhs(State u, double rhs)
         {
-            makeNewCell(u);
-            cellHash[u].rhs = rhs;
+            MakeNewCell(u);
+            cellHash[u].Rhs = rhs;
         }
 
-        private void makeNewCell(State u)
+        private void MakeNewCell(State u)
         {
             if (cellHash.ContainsKey(u))
             {
                 return;
             }
 
-            var tmp = new CellInfo();
-            tmp.rhs = heuristic(u, s_goal);
-            tmp.g = heuristic(u, s_goal);
-            tmp.cost = C1;
+            var tmp = new CellInfo
+            {
+                Rhs = Heuristic(u, s_goal),
+                G = Heuristic(u, s_goal),
+                Cost = C1
+            };
             cellHash.Add(u, tmp);
         }
 
-        public void updateCell(int x, int y, double val)
+        public void UpdateCell(int x, int y, double val)
         {
-            var u = new State();
-            u.x = x;
-            u.y = y;
-            if (u.eq(s_start) || u.eq(s_goal))
+            var u = new State
+            {
+                X = x,
+                Y = y
+            };
+            if (u.Eq(s_start) || u.Eq(s_goal))
             {
                 return;
             }
 
-            makeNewCell(u);
-            cellHash[u].cost = val;
-            updateVertex(u);
+            MakeNewCell(u);
+            cellHash[u].Cost = val;
+            UpdateVertex(u);
         }
 
-        private void insert(State u)
+        private void Insert(State u)
         {
             // iterator cur
-            float csum;
-            u = calculateKey(u);
+            u = CalculateKey(u);
             // cur = openHash.find(u);
-            csum = keyHashCode(u);
+            var csum = KeyHashCode(u);
             //  return if cell is already in list. TODO: this should be
             //  uncommented except it introduces a bug, I suspect that there is a
             //  bug somewhere else and having duplicates in the openList queue
@@ -541,12 +550,12 @@ namespace DStarLiteSharp
             openList.Add(u);
         }
 
-        private float keyHashCode(State u)
+        private static float KeyHashCode(State u)
         {
-            return (float)(u.k.first() + 1193 * u.k.second());
+            return (float)(u.k.First() + 1193 * u.k.Second());
         }
 
-        private bool occupied(State u)
+        private bool Occupied(State u)
         {
             // if the cellHash does not contain the State u
             if (!cellHash.ContainsKey(u))
@@ -554,21 +563,21 @@ namespace DStarLiteSharp
                 return false;
             }
 
-            return cellHash[u].cost < 0;
+            return cellHash[u].Cost < 0;
         }
 
-        private double trueDist(State a, State b)
+        private static double TrueDist(State a, State b)
         {
-            float x = a.x - b.x;
-            float y = a.y - b.y;
+            float x = a.X - b.X;
+            float y = a.Y - b.Y;
             return Math.Sqrt(x * x
                              + y * y);
         }
 
-        private double cost(State a, State b)
+        private double Cost(State a, State b)
         {
-            var xd = Math.Abs(a.x - b.x);
-            var yd = Math.Abs(a.y - b.y);
+            var xd = Math.Abs(a.X - b.X);
+            var yd = Math.Abs(a.Y - b.Y);
             double scale = 1;
             if (xd + yd > 1)
             {
@@ -580,10 +589,10 @@ namespace DStarLiteSharp
                 return scale * C1;
             }
 
-            return scale * cellHash[a].cost;
+            return scale * cellHash[a].Cost;
         }
 
-        private bool close(double x, double y)
+        private static bool Close(double x, double y)
         {
             if ((x == double.MaxValue)
                 && (y == double.MaxValue))
@@ -594,7 +603,7 @@ namespace DStarLiteSharp
             return Math.Abs(x - y) < 1E-05;
         }
 
-        public List<State> getPath()
+        public List<State> GetPath()
         {
             return path;
         }
@@ -602,28 +611,28 @@ namespace DStarLiteSharp
 
     public class CellInfo
     {
-        public double cost;
-        public double g;
+        public double Cost;
+        public double G;
 
-        public double rhs;
+        public double Rhs;
     }
 
-    public class ipoint2
+    public class Ipoint2
     {
         public int x;
 
         public int y;
 
         // default constructor
-        public ipoint2()
+        public Ipoint2()
         {
         }
 
         // overloaded constructor
-        public ipoint2(int x, int y)
+        public Ipoint2(int x, int y)
         {
-            this.x = this.x;
-            this.y = this.y;
+            this.x = x;
+            this.y = y;
         }
     }
 }

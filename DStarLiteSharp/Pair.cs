@@ -27,7 +27,6 @@ namespace DStarLiteSharp
          * */
 
         private T object1;
-
         private bool object1Null;
         private U object2;
         private bool object2Null;
@@ -46,24 +45,24 @@ namespace DStarLiteSharp
             return new Pair<T, U>(object1, object2);
         }
 
-        public T first()
+        public T First()
         {
             return object1;
         }
 
-        public U second()
+        public U Second()
         {
             return object2;
         }
 
-        public void setFirst(T object1)
+        public void SetFirst(T object1)
         {
             this.object1 = object1;
             object1Null = object1 == null;
             dualNull = object1Null && object2Null;
         }
 
-        public void setSecond(U object2)
+        public void SetSecond(U object2)
         {
             this.object2 = object2;
             object2Null = object2 == null;
