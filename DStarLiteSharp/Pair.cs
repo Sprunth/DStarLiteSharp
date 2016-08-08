@@ -40,20 +40,11 @@ namespace DStarLiteSharp
             dualNull = object1Null && object2Null;
         }
 
-        public object Clone()
-        {
-            return new Pair<T, U>(object1, object2);
-        }
+        public object Clone() => new Pair<T, U>(object1, object2);
 
-        public T First()
-        {
-            return object1;
-        }
+        public T First() => object1;
 
-        public U Second()
-        {
-            return object2;
-        }
+        public U Second() => object2;
 
         public void SetFirst(T object1)
         {

@@ -10,6 +10,8 @@ namespace DStarLiteSharp
 
         private readonly double C1;
 
+        private readonly Dictionary<State, CellInfo> cellHash = new Dictionary<State, CellInfo>();
+
         // Constants
         private readonly double M_SQRT2 = Math.Sqrt(2);
 
@@ -22,9 +24,6 @@ namespace DStarLiteSharp
         private readonly List<State> path = new List<State>();
 
         private readonly State s_goal = new State();
-
-        // Change back to private****
-        public readonly Dictionary<State, CellInfo> cellHash = new Dictionary<State, CellInfo>();
 
         private double k_m;
 
@@ -45,7 +44,7 @@ namespace DStarLiteSharp
         {
         }
 
-        public void init(int sX, int sY, int gX, int gY)
+        public void Init(int sX, int sY, int gX, int gY)
         {
             cellHash.Clear();
             path.Clear();
@@ -152,7 +151,7 @@ namespace DStarLiteSharp
                 return false;
             }
 
-            while (cur.Neq(s_goal))
+            while (cur != s_goal)
             {
                 path.Add(cur);
                 var n = new System.Collections.Generic.LinkedList<State>();
@@ -207,7 +206,7 @@ namespace DStarLiteSharp
             var k = 0;
             // todo: check conversion of this while condition
             while (!openList.IsEmpty
-                   && openList.FindMin().Lt(s_start = CalculateKey(s_start))
+                   && openList.FindMin() < (s_start = CalculateKey(s_start))
                    || (GetRhs(s_start) != GetG(s_start)))
             {
                 if (k++ > maxSteps)
@@ -231,7 +230,7 @@ namespace DStarLiteSharp
                         // TODO: Warning!!! continue If
                     }
 
-                    if (!u.Lt(s_start)
+                    if (!(u < s_start)
                         && !test)
                     {
                         return 2;
@@ -242,7 +241,7 @@ namespace DStarLiteSharp
 
                 openHash.Remove(u);
                 var k_old = new State(u);
-                if (k_old.Lt(CalculateKey(u)))
+                if (k_old < CalculateKey(u))
                 {
                     // u is out of date
                     Insert(u);
@@ -296,28 +295,28 @@ namespace DStarLiteSharp
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                tempState = new State((u.X + 1), (u.Y + 1), new Pair<double, double>(-1, -1));
+                tempState = new State(u.X + 1, u.Y + 1, new Pair<double, double>(-1, -1));
                 s.AddFirst(tempState);
             }
             tempState = new State(u.X, u.Y + 1, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                tempState = new State((u.X - 1), (u.Y + 1), new Pair<double, double>(-1, -1));
+                tempState = new State(u.X - 1, u.Y + 1, new Pair<double, double>(-1, -1));
                 s.AddFirst(tempState);
             }
             tempState = new State(u.X - 1, u.Y, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                tempState = new State((u.X - 1), (u.Y - 1), new Pair<double, double>(-1, -1));
+                tempState = new State(u.X - 1, u.Y - 1, new Pair<double, double>(-1, -1));
                 s.AddFirst(tempState);
             }
             tempState = new State(u.X, u.Y - 1, new Pair<double, double>(-1, -1));
             s.AddFirst(tempState);
             if (allowDiagonalPathing)
             {
-                tempState = new State((u.X + 1), (u.Y - 1), new Pair<double, double>(-1, -1));
+                tempState = new State(u.X + 1, u.Y - 1, new Pair<double, double>(-1, -1));
                 s.AddFirst(tempState);
             }
             return s;
@@ -447,7 +446,7 @@ namespace DStarLiteSharp
 
         private void UpdateVertex(State u)
         {
-            if (u.Neq(s_goal))
+            if (u != s_goal)
             {
                 var s = GetSucc(u);
                 var tmp = double.MaxValue;
@@ -522,7 +521,7 @@ namespace DStarLiteSharp
                 X = x,
                 Y = y
             };
-            if (u.Eq(s_start) || u.Eq(s_goal))
+            if (u == s_start || u == s_goal)
             {
                 return;
             }
@@ -538,12 +537,8 @@ namespace DStarLiteSharp
             u = CalculateKey(u);
             // cur = openHash.find(u);
             var csum = KeyHashCode(u);
-            //  return if cell is already in list. TODO: this should be
-            //  uncommented except it introduces a bug, I suspect that there is a
-            //  bug somewhere else and having duplicates in the openList queue
-            //  hides the problem...
-            //
-            //if ((cur != openHash.end()) && (close(csum, cur->second))) return;
+
+            //  return if cell is already in list.
             if (openHash.ContainsKey(u))
                 return;
             openHash.Add(u, csum);
@@ -615,24 +610,5 @@ namespace DStarLiteSharp
         public double G;
 
         public double Rhs;
-    }
-
-    public class Ipoint2
-    {
-        public int x;
-
-        public int y;
-
-        // default constructor
-        public Ipoint2()
-        {
-        }
-
-        // overloaded constructor
-        public Ipoint2(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
     }
 }

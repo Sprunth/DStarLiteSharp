@@ -42,39 +42,47 @@ namespace DStarLiteSharp
         }
 
         //Equals
-        public bool Eq(State s2)
+        public static bool operator ==(State s1, State s2)
         {
-            return (X == s2.X) && (Y == s2.Y);
+            return (s1.X == s2.X) && (s1.Y == s2.Y);
         }
 
         //Not Equals
-        public bool Neq(State s2)
+        public static bool operator !=(State s1, State s2)
         {
-            return (X != s2.X) || (Y != s2.Y);
+            return (s1.X != s2.X) || (s1.Y != s2.Y);
+        }
+
+        //Greater than or equal to
+        public static bool operator >=(State s1, State s2)
+        {
+            if (s1.k.First() < s2.k.First()) return false;
+            if (s1.k.First() > s2.k.First()) return true;
+            return s1.k.Second() > s2.k.Second() + 0.00001;
         }
 
         //Greater than
-        public bool Gt(State s2)
+        public static bool operator >(State s1, State s2)
         {
-            if (k.First() - 0.00001 > s2.k.First()) return true;
-            if (k.First() < s2.k.First() - 0.00001) return false;
-            return k.Second() > s2.k.Second();
+            if (s1.k.First() - 0.00001 > s2.k.First()) return true;
+            if (s1.k.First() < s2.k.First() - 0.00001) return false;
+            return s1.k.Second() > s2.k.Second();
         }
 
         //Less than or equal to
-        public bool Lte(State s2)
+        public static bool operator <=(State s1, State s2)
         {
-            if (k.First() < s2.k.First()) return true;
-            if (k.First() > s2.k.First()) return false;
-            return k.Second() < s2.k.Second() + 0.00001;
+            if (s1.k.First() < s2.k.First()) return true;
+            if (s1.k.First() > s2.k.First()) return false;
+            return s1.k.Second() < s2.k.Second() + 0.00001;
         }
 
         //Less than
-        public bool Lt(State s2)
+        public static bool operator <(State s1, State s2)
         {
-            if (k.First() + 0.000001 < s2.k.First()) return true;
-            if (k.First() - 0.000001 > s2.k.First()) return false;
-            return k.Second() < s2.k.Second();
+            if (s1.k.First() + 0.000001 < s2.k.First()) return true;
+            if (s1.k.First() - 0.000001 > s2.k.First()) return false;
+            return s1.k.Second() < s2.k.Second();
         }
 
         public override int GetHashCode()
@@ -85,7 +93,7 @@ namespace DStarLiteSharp
         public override bool Equals(object obj)
         {
             //check for self-comparison
-            if (this == obj) return true;
+            if (this == (State)obj) return true;
 
             //use instanceof instead of getClass here for two reasons
             //1. if need be, it can match any supertype, and not just one class;
@@ -100,8 +108,7 @@ namespace DStarLiteSharp
             var that = (State)obj;
 
             //now a proper field-by-field evaluation can be made
-            if (X == that.X && Y == that.Y) return true;
-            return false;
+            return X == that.X && Y == that.Y;
         }
     }
 }

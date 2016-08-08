@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DStarLiteSharp;
 
 namespace DStarLiteSharpSample
 {
-    class Program
+    internal static class Program
     {
-        private static readonly int[,] maze = new int[,]
+        private const int mazeWidth = 10;
+        private const int mazeHeight = 7;
+
+        private static readonly int[,] maze =
         {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 0, 1, 0, 0, 0, 1, 0, 0, 1},
@@ -21,16 +20,13 @@ namespace DStarLiteSharpSample
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
         };
 
-        private const int mazeWidth = 10;
-        private const int mazeHeight = 7;
-
         public static void Main(string[] args)
         {
             int startX = 1, startY = 1;
             int endX = 8, endY = 5;
 
-            var pathfinder = new DStarLite(1000, true);
-            pathfinder.init(startX, startY, endX, endY);
+            var pathfinder = new DStarLite(1000, false);
+            pathfinder.Init(startX, startY, endX, endY);
             for (var row = 0; row < mazeHeight; row++)
             {
                 for (var col = 0; col < mazeWidth; col++)
@@ -65,12 +61,12 @@ namespace DStarLiteSharpSample
                         Console.Write('S');
                         continue;
                     }
-                    else if ((col == endX) && (row == endY))
+                    if ((col == endX) && (row == endY))
                     {
                         Console.Write('E');
                         continue;
                     }
-                    bool written = false;
+                    var written = false;
                     path.ForEach(state =>
                     {
                         if (col == state.X && row == state.Y)
